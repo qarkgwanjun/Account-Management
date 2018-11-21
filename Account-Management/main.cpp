@@ -1,166 +1,159 @@
+//1. 구조체를 클래스로 변경
+//2. 클래스를 캡슐화 및 정보은닉 적용
+//3. 관리할 수 이는 계좌수를 100개
+//->객체 포인터 배열로 코드를 작성
+//4. 계좌의 고객이름은 동적할당으로 적용
+//5. 객체의 초기화 및 소멸을 위해서, 클래스에 생성자 및 소멸자를 작성
+//6. 계좌개설, 입금, 출금, 계좌정보 전체 출력, 종료 기능을 각각 함수로 구현
+
 #include <iostream>
 #include <cstring>
 #define SIZE 10
 
 using namespace std;
-int a = 1;
-int i = 0;
+bool a = true;
 
-struct AccoutInfo
+class AccountInfo
 {
-	int accout;
-	int input;
-	int output;
-	int sum = 0;
-	int i = 0;
+private:
+	int account;
+	int cash;
+	char *name;
 
-	char name[10];
+public:
+	AccountInfo()
+	{
+		name = 0;
+		account = 0;
+		cash = 0;
+	}
+	AccountInfo(char *myName, int myaccount, int mycash) : account(myaccount), cash(mycash)
+	{
+		int len = strlen(myName) + 1;
+		this->name = new char[len];
+		strcpy(this->name, myName);
+
+	}
+
+	void ShowMeTheMoney() const
+	{
+		cout << "현재잔고는 : " << cash << " 원 입니다." << endl;
+	}
+	void plus(int money)
+	{
+		cash += money;
+	}
+	void minus(int money)
+	{
+		cash -= money;
+	}
+	int getID()
+	{
+		return account;
+	}
+	int CurrentMoney()
+	{
+		return cash;
+	}
+	void ShowInfo(void)
+	{
+		cout << "계좌 : " << account << endl;
+		cout << "이름 : " << name << endl;
+		cout << "잔고 : " << cash << endl;
+	}
+	~AccountInfo()
+	{
+		delete[] name;
+	}
 };
 
-int Search(AccoutInfo *info, int n, int id)
+class ControlClass
 {
-	int j;
-	for (j = 0; j < n; j++)
+private:
+	AccountInfo *accounts[100];
+	int accNum;
+
+public:
+	ControlClass() : accNum(0)
+	{}
+
+	int GetAccNum()
 	{
-		if (info[j].accout == id)
-			return j;
+		return accNum;
 	}
-	return -1;
-}
 
-int MakeAccount(AccoutInfo *info)
-{
-	if (i > 100)
-		cout << "계좌 등록 초과" << endl;
-	int a = 1;
-	int id;
-	int search;
-	cout << "[계좌개설]" << endl;
-
-	while (a)
+	void MakeAccount(AccountInfo *Acc)
 	{
-		cout << "계좌ID  : ";
-		cin >> id;
-		search = Search(info, SIZE, id);
-		if (id == info[search].accout)
-		{
-			cout << "이미 있는 계좌입니다. 다시 입력하세요" << endl;
-		}
-		else
-		{
-			info[i].accout = id;
-			cout << "이름 : ";
-			cin >> info[i].name;
-			cout << "입금액 : ";
-			cin >> info[i].input;
-			info[i].sum = info[i].input;
-			cout << "입금완료 되었습니다." << endl;
-			i++;
-			a = 0;
-		}
+		accounts[accNum++] = Acc;
 	}
-	return i - 1;
-}
 
-void InputMoney(AccoutInfo *info)
-{
-	int id;
-	int search;
-	int a = 1;
-	cout << "[입금] " << endl;
-
-	while (a)
+	void InputMoney(int money, int i)
 	{
-		cout << "계좌ID  : ";
-		cin >> id;
-		search = Search(info, SIZE, id);
-		if (id != info[search].accout)
-		{
-			cout << "찾는 계좌가 없습니다. 다시 입력하세요" << endl;
-		}
-		else
-		{
-			cout << "입금액 : ";
-			cin >> info[search].input;
-			info[search].sum += info[search].input;
-			cout << "현재 잔고 : " << info[search].sum << "원" << endl;
-			a = 0;
-		}
+		accounts[i]->plus(money);
 	}
-}
-
-void OutputMoney(AccoutInfo *info)
-{
-
-	int a = 1;
-	int id;
-	int search;
-	cout << "[출금] " << endl;
-	cout << "계좌ID : ";
-	cin >> id;
-
-	while (a)
+	void OutputMoney(int money, int i)
 	{
-		search = Search(info, SIZE, id);
-		if (id != info[search].accout)
-		{
-			cout << "찾는 계좌가 없습니다. 다시 입력하세요" << endl;
-			cout << "계좌ID : ";
-			cin >> id;
-		}
-		else
-		{
-			cout << "출금액 : ";
-			cin >> info[search].output;
-			a = 0;
-		}
+		accounts[i]->minus(money);
 	}
-	a = 1;
-	while (a)
+	int Search(int ID)
 	{
-		search = Search(info, SIZE, id);
-		if ((info[search].sum - info[search].output) < 0)
+		for (int i = 0; i < accNum; i++)
 		{
-			cout << "잔액이 부족합니다!!!" << endl;
-			cout << "현재 잔고" << info[search].sum << endl;
-			cout << "출금액을 다시 입력하세요 : " << endl;
-			cout << "출금액 : ";
-			cin >> info[search].output;
+			if (accounts[i]->getID() == ID)
+				return i;
 		}
-		else
+		return -1;
+	}
+	void ShowMeTheMoney(int accNum)
+	{
+		accounts[accNum]->ShowMeTheMoney();
+	}
+	int CurrentMoney(int accNum)
+	{
+		return accounts[accNum]->CurrentMoney();
+	}
+
+	int getID(int accNum)
+	{
+		return accounts[accNum]->getID();
+	}
+
+	int GetInt(const char *str)
+	{
+		int buffer;
+		cout << str;
+		cin >> buffer;
+		return buffer;
+	}
+	void print(void)
+	{
+		for (int i = 0; i < accNum; i++)
 		{
-			info[search].sum -= info[search].output;
-			a = 0;
+			accounts[i]->ShowInfo();
 		}
 	}
 
-}
 
-int PrintAllAccout(AccoutInfo *info, int count)
-{
-	cout << "i는" << count << endl;
-	cout << "[전체 출력] " << endl;
-	int t;
-	for (t = 0; t <= count; t++)
-	{
-		cout << "계좌 ID : " << info[t].accout << endl;
-		cout << "이름 : " << info[t].name << endl;
-		cout << "입금액 : " << info[t].sum << endl;
-	}
-	return 0;
-}
+};
 
 void Exit(void)
 {
 	cout << "프로그램을 종료합니다." << endl;
-	a = 0;
+	a = false;
 }
 
 int main(void)
 {
-	AccoutInfo info[100];
+	//AccountInfo account;
+	ControlClass handler;
+
+
 	int select;
-	int count;
+	int location;
+	int idBuffer;
+	char nameBuffer[20];// = new char[20];
+	int moneyBuffer;
+
 	while (a)
 	{
 		cout << "---------- Menu ----------" << endl;
@@ -175,19 +168,102 @@ int main(void)
 		switch (select)
 		{
 		case 1:
-			count = MakeAccount(info);
+			if (handler.GetAccNum() > 100)
+				cout << "계좌 등록 초과" << endl;
+			else
+			{
+				cout << "[계좌개설]" << endl;
+
+				while (a)
+				{
+					idBuffer = handler.GetInt("계좌ID  : ");
+					if (handler.Search(idBuffer) == -1)
+					{
+						cout << "이름 : ";
+						cin >> nameBuffer;
+						cout << "입금액 : ";
+						cin >> moneyBuffer;
+
+						/*int len = strlen(nameBuffer) + 1;
+						char *nameptr = new char[len];
+						strcpy(nameptr, Mname);
+						*/
+						/*AccountInfo peoplebuf(nameBuffer, idBuffer, moneyBuffer);
+						AccountInfo *peoplebufptr = &peoplebuf;
+						handler.MakeAccount(peoplebufptr);*/
+
+
+						handler.MakeAccount(new AccountInfo(nameBuffer, idBuffer, moneyBuffer));
+						//int i = handler.Search(idBuffer);
+						//handler.InputMoney(moneyBuffer, i); //입력한 id 위치에 돈을 넣음
+
+						cout << "개설완료 되었습니다." << endl;
+						a = false;
+					}
+					else
+					{
+						cout << "이미 있는 계좌입니다. 다시 입력하세요" << endl;
+					}
+				}
+				a = true;
+			}
 			break;
 
 		case 2:
-			InputMoney(info);
+			while (a)
+			{
+				idBuffer = handler.GetInt("계좌ID  : ");
+				if (handler.Search(idBuffer) == -1)
+				{
+					cout << "찾는 계좌가 없습니다. 다시 입력하세요" << endl;
+				}
+				else
+				{
+					cout << "입금액 : ";
+					cin >> moneyBuffer;
+					location = handler.Search(idBuffer);
+					handler.InputMoney(moneyBuffer, location); //입력한 id 위치에 돈을 넣음
+					handler.ShowMeTheMoney(location);
+					a = false;
+				}
+			}
+			a = true;
 			break;
 
 		case 3:
-			OutputMoney(info);
+			while (a)
+			{
+				idBuffer = handler.GetInt("계좌ID  : ");
+				if (handler.Search(idBuffer) == -1)
+				{
+					cout << "찾는 계좌가 없습니다. 다시 입력하세요" << endl;
+				}
+				else
+				{
+					cout << "출금액 : ";
+					cin >> moneyBuffer;
+					location = handler.Search(idBuffer);
+					int money = handler.CurrentMoney(location);
+					if (moneyBuffer > money)
+					{
+						cout << "잔액이 부족합니다!!!" << endl;
+						handler.ShowMeTheMoney(location);
+						cout << "출금액을 다시 입력하세요 : " << endl;
+						cout << "출금액 : ";
+						cin >> moneyBuffer;
+					}
+					location = handler.Search(idBuffer);
+					handler.OutputMoney(moneyBuffer, location); //입력한 id 위치에 돈을 넣음
+					handler.ShowMeTheMoney(location);
+					a = false;
+				}
+			}
+			a = true;
 			break;
 
 		case 4:
-			PrintAllAccout(info, count);
+			cout << "[전체 출력] " << endl;
+			handler.print();
 			break;
 
 		case 5:
@@ -202,3 +278,4 @@ int main(void)
 
 	return 0;
 }
+
