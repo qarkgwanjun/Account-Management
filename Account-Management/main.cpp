@@ -1,10 +1,3 @@
-//1. 구조체를 클래스로 변경
-//2. 클래스를 캡슐화 및 정보은닉 적용
-//3. 관리할 수 이는 계좌수를 100개
-//->객체 포인터 배열로 코드를 작성
-//4. 계좌의 고객이름은 동적할당으로 적용
-//5. 객체의 초기화 및 소멸을 위해서, 클래스에 생성자 및 소멸자를 작성
-//6. 계좌개설, 입금, 출금, 계좌정보 전체 출력, 종료 기능을 각각 함수로 구현
 
 #include <iostream>
 #include <cstring>
@@ -13,6 +6,62 @@
 using namespace std;
 bool a = true;
 
+// 신용등급
+enum { LEVEL_A = 7, LEVEL_B = 4, LEVEL_C = 2 };
+
+// 계좌의 종류
+enum { NORMAL = 1, CREDIT = 2 };
+
+
+/*
+ * 클래스 이름: Account
+ * 클래스 유형: Entity 클래스
+ */
+
+class Account
+{
+private:
+	int accID; 			//계좌번호
+	int balance;    		//잔액
+	char * cusName; 		//고객명
+};
+
+
+/*
+ * 클래스 이름: NormalAccount
+ * 클래스 유형: Entity 클래스
+ */
+
+class NormalAccount : public Account
+{
+private:
+	int interRate;   		// 입금시 발생하는 이자율 %단위
+};
+
+
+/*
+ * 클래스 이름: HighCreditAccount
+ * 클래스 유형: Entity 클래스
+ */
+
+class HighCreditAccount : public NormalAccount
+{
+private:
+	int specialRate;		//기본이율에 추가되는 이자율
+};
+
+
+/*
+ * 클래스 이름: AccountHandler
+ * 클래스 유형: 컨트롤(Control) 클래스
+ */
+
+class AccountHandler
+{
+private:
+	Account * accArr[100];	//계좌를 관리하는 배열
+	int accNum;		//현재 등록된 계좌수
+};
 class AccountInfo
 {
 private:
